@@ -6,6 +6,8 @@
     <title>Professional Expense & Profit Tracker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -40,7 +42,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
             min-height: 100vh;
             color: var(--gray-800);
@@ -60,6 +62,12 @@
             border-radius: var(--border-radius);
             margin-bottom: 2rem;
             box-shadow: var(--shadow-lg);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header h1 {
@@ -84,6 +92,7 @@
             margin-bottom: 2rem;
             overflow-x: auto;
             gap: 0.25rem;
+            -webkit-overflow-scrolling: touch;
         }
 
         .nav-tab {
@@ -228,8 +237,6 @@
         .btn-danger {
             background: var(--danger);
             color: white;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.75rem;
         }
 
         .btn-danger:hover:not(:disabled) {
@@ -248,6 +255,25 @@
             box-shadow: var(--shadow-lg);
         }
 
+        .btn-icon {
+            padding: 0.5rem;
+            border-radius: calc(var(--border-radius) - 4px);
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .btn-icon:hover {
+            color: var(--gray-800);
+        }
+        
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -264,6 +290,7 @@
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
+            animation: slideIn 0.5s ease-out;
         }
 
         .stat-card:hover {
@@ -370,6 +397,7 @@
             padding: 1rem 0.75rem;
             text-align: left;
             border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
         }
 
         th {
@@ -493,17 +521,16 @@
             border-left: 4px solid;
             padding: 1rem 1.25rem;
             animation: toastSlide 0.3s ease;
+            opacity: 0;
+            transform: translateX(100%);
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
 
-        @keyframes toastSlide {
-            from { 
-                opacity: 0; 
-                transform: translateX(100%); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateX(0); 
-            }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+            visibility: visible;
         }
 
         .toast.success {
@@ -523,6 +550,12 @@
         .toast-body {
             color: var(--gray-600);
             font-size: 0.875rem;
+        }
+        
+        .clear-data-button-container {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem;
         }
 
         @media (max-width: 768px) {
@@ -617,6 +650,52 @@
 
         .empty-state-text {
             font-size: 0.875rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-xl);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+            color: var(--gray-600);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
         }
     </style>
 </head>
@@ -735,7 +814,12 @@
                 
                 <div class="actions-group">
                     <button class="btn btn-primary" onclick="addPurchase()">Add Purchase Record</button>
-                    <button class="btn btn-secondary" onclick="clearPurchaseForm()">Clear Form</button>
+                    <button class="btn btn-secondary btn-icon" onclick="clearPurchaseForm()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.648A3.497 3.497 0 013.52 14.288c1.47-1.47 3.237-2.31 5.176-2.583A5.992 5.992 0 0115.53 12.5M10.25 7.75h3.5m-3.5 3.5h3.5" />
+                        </svg>
+                        Clear
+                    </button>
                 </div>
             </div>
         </div>
@@ -787,7 +871,12 @@
                 
                 <div class="actions-group">
                     <button class="btn btn-success" onclick="addSale()">Add Sale Record</button>
-                    <button class="btn btn-secondary" onclick="clearSaleForm()">Clear Form</button>
+                    <button class="btn btn-secondary btn-icon" onclick="clearSaleForm()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.648A3.497 3.497 0 013.52 14.288c1.47-1.47 3.237-2.31 5.176-2.583A5.992 5.992 0 0115.53 12.5M10.25 7.75h3.5m-3.5 3.5h3.5" />
+                        </svg>
+                        Clear
+                    </button>
                 </div>
             </div>
         </div>
@@ -849,23 +938,22 @@
                     <h3>All Transactions</h3>
                     <div class="table-controls">
                         <div class="form-group">
-                            <select id="filterType" class="form-control" onchange="filterTransactions()">
+                            <select id="filterType" class="form-control" onchange="renderTransactions()">
                                 <option value="all">All Transactions</option>
                                 <option value="purchase">Purchases Only</option>
                                 <option value="sale">Sales Only</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <select id="filterPayment" class="form-control" onchange="filterTransactions()">
+                            <select id="filterPayment" class="form-control" onchange="renderTransactions()">
                                 <option value="all">All Payments</option>
                                 <option value="paid">Cash (Paid)</option>
                                 <option value="credit">Credit (Udhaar)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <input type="text" id="searchTransaction" class="form-control" placeholder="Search transactions..." onkeyup="filterTransactions()">
+                            <input type="text" id="searchTransaction" class="form-control" placeholder="Search transactions..." onkeyup="renderTransactions()">
                         </div>
-                        <button class="btn btn-danger" onclick="clearOldData()" title="Clear all stored data">Clear All Data</button>
                     </div>
                 </div>
                 <div class="table-wrapper">
@@ -897,582 +985,203 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="clear-data-button-container">
+                    <button class="btn btn-danger" onclick="confirmClearData()">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <div class="toast-header" id="toastHeader"></div>
+        <div class="toast-body" id="toastBody"></div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Confirm Action</div>
+            <div class="modal-body" id="modalMessage"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="executeModalAction()">Clear</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Global variables for data and charts
         let transactions = [];
-        let profitChart = null;
-        let reportChart = null;
+        let profitChartInstance = null;
+        let reportChartInstance = null;
 
+        // On page load, initialize the app
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('purchaseDate').value = today;
             document.getElementById('saleDate').value = today;
-            
+
             loadData();
             updateDashboard();
             updateReports();
-            loadTransactions();
+            renderTransactions();
             initializeCharts();
+            
+            // Event listener for custom date range
+            document.getElementById('reportPeriod').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                const customRange2 = document.getElementById('customDateRange2');
+                if (this.value === 'custom') {
+                    customRange.style.display = 'flex';
+                    customRange2.style.display = 'flex';
+                } else {
+                    customRange.style.display = 'none';
+                    customRange2.style.display = 'none';
+                }
+                updateReports();
+            });
         });
 
+        // Function to switch between tabs
         function switchTab(tabName) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+            // Remove 'active' class from all tabs and navigation buttons
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(navTab => navTab.classList.remove('active'));
             
-            const navTabs = document.querySelectorAll('.nav-tab');
-            navTabs.forEach(navTab => navTab.classList.remove('active'));
-            
+            // Add 'active' class to the selected tab and navigation button
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
             
-            if (tabName === 'reports') {
+            // Update content based on the selected tab
+            if (tabName === 'dashboard') {
+                updateDashboard();
+            } else if (tabName === 'reports') {
                 updateReports();
             } else if (tabName === 'transactions') {
-                loadTransactions();
+                renderTransactions();
             }
         }
 
+        // --- Data Handling ---
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const storedData = localStorage.getItem('expenseTrackerData');
+                if (storedData) {
+                    transactions = JSON.parse(storedData);
+                    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                }
+            } catch (error) {
+                showToast('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        // Save data to localStorage
         function saveData() {
             try {
                 localStorage.setItem('expenseTrackerData', JSON.stringify(transactions));
-                localStorage.setItem('expenseTrackerLastSaved', new Date().toISOString());
+                showToast('Data saved successfully!', 'success');
             } catch (error) {
                 showToast('Error saving data: ' + error.message, 'error');
             }
         }
 
-        function loadData() {
-            try {
-                const savedData = localStorage.getItem('expenseTrackerData');
-                if (savedData) {
-                    transactions = JSON.parse(savedData);
-                }
-            } catch (error) {
-                transactions = [];
-                showToast('Error loading data: ' + error.message, 'error');
-            }
-        }
+        // --- Form Functions ---
 
-        function clearOldData() {
-            if (confirm('Are you sure you want to clear all stored data? This action cannot be undone.')) {
-                localStorage.removeItem('expenseTrackerData');
-                localStorage.removeItem('expenseTrackerLastSaved');
-                transactions = [];
-                updateDashboard();
-                loadTransactions();
-                showToast('All data cleared successfully!', 'success');
-            }
-        }
-
+        // Add a new purchase record
         function addPurchase() {
             const date = document.getElementById('purchaseDate').value;
             const supplier = document.getElementById('supplierName').value.trim();
             const product = document.getElementById('productName').value.trim();
-            const quantity = parseInt(document.getElementById('purchaseQuantity').value);
-            const price = parseFloat(document.getElementById('purchasePrice').value);
+            const quantity = parseFloat(document.getElementById('purchaseQuantity').value);
+            const unitPrice = parseFloat(document.getElementById('purchasePrice').value);
             const payment = document.getElementById('purchasePayment').value;
             const notes = document.getElementById('purchaseNotes').value.trim();
 
-            if (!date || !supplier || !product || !quantity || !price || !payment) {
-                showAlert('Please fill all required fields!', 'error', 'purchaseAlert');
+            if (!date || !supplier || !product || isNaN(quantity) || isNaN(unitPrice) || !payment) {
+                showToast('Please fill out all required fields.', 'error');
                 return;
             }
 
-            const transaction = {
+            const totalAmount = quantity * unitPrice;
+            const newTransaction = {
                 id: Date.now(),
+                date,
                 type: 'purchase',
-                date: date,
+                product,
+                quantity,
+                unitPrice,
+                totalAmount: totalAmount.toFixed(2),
+                payment,
                 person: supplier,
-                product: product,
-                quantity: quantity,
-                unitPrice: price,
-                totalAmount: quantity * price,
-                payment: payment,
-                notes: notes,
-                timestamp: new Date().toISOString()
+                notes,
+                costPrice: unitPrice.toFixed(2),
+                profit: 0
             };
 
-            transactions.push(transaction);
+            transactions.unshift(newTransaction);
             saveData();
-            updateDashboard();
             clearPurchaseForm();
-            showAlert('Purchase record added successfully!', 'success', 'purchaseAlert');
-            showToast('Purchase Added', 'success');
-        }
-
-        function addSale() {
-            const date = document.getElementById('saleDate').value;
-            const customer = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
-            const product = document.getElementById('saleProduct').value.trim() || 'General Sale';
-            const quantity = parseInt(document.getElementById('saleQuantity').value) || 1;
-            const salePrice = parseFloat(document.getElementById('salePrice').value);
-            const costPrice = parseFloat(document.getElementById('costPrice').value);
-            const payment = document.getElementById('salePayment').value;
-            const notes = document.getElementById('saleNotes').value.trim();
-
-            if (!date || !salePrice || !costPrice || !payment) {
-                showAlert('Please fill required fields: Date, Selling Price, Cost Price, and Payment Status!', 'error', 'saleAlert');
-                return;
-            }
-
-            const totalSale = quantity * salePrice;
-            const totalCost = quantity * costPrice;
-            const profit = totalSale - totalCost;
-
-            const transaction = {
-                id: Date.now(),
-                type: 'sale',
-                date: date,
-                person: customer,
-                product: product,
-                quantity: quantity,
-                unitPrice: salePrice,
-                costPrice: costPrice,
-                totalAmount: totalSale,
-                totalCost: totalCost,
-                profit: profit,
-                payment: payment,
-                notes: notes,
-                timestamp: new Date().toISOString()
-            };
-
-            transactions.push(transaction);
-            saveData();
             updateDashboard();
-            clearSaleForm();
-            showAlert('Sale record added successfully!', 'success', 'saleAlert');
-            showToast('Sale Added Successfully', 'success');
+            renderTransactions();
+            showToast('Purchase added successfully!', 'success');
         }
-
-        function updateDashboard() {
-            let totalRevenue = 0;
-            let totalExpense = 0;
-            let totalProfit = 0;
-            let pendingCredit = 0;
-
-            transactions.forEach(transaction => {
-                if (transaction.type === 'sale') {
-                    totalRevenue += transaction.totalAmount;
-                    if (transaction.profit) {
-                        totalProfit += transaction.profit;
-                    }
-                    if (transaction.payment === 'credit') {
-                        pendingCredit += transaction.totalAmount;
-                    }
-                } else if (transaction.type === 'purchase') {
-                    totalExpense += transaction.totalAmount;
-                    if (transaction.payment === 'credit') {
-                        pendingCredit += transaction.totalAmount;
-                    }
-                }
-            });
-
-            document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
-            document.getElementById('totalExpense').textContent = `₹${totalExpense.toLocaleString()}`;
-            document.getElementById('totalProfit').textContent = `₹${totalProfit.toLocaleString()}`;
-            document.getElementById('pendingCredit').textContent = `₹${pendingCredit.toLocaleString()}`;
-
-            updateRecentTransactions();
-            updateProfitChart();
-        }
-
-        function updateRecentTransactions() {
-            const tbody = document.getElementById('recentTransactions');
-            const recent = transactions.slice(-10).reverse();
-
-            if (recent.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📊</div>
-                                <div class="empty-state-title">No transactions yet</div>
-                                <div class="empty-state-text">Start by adding your first purchase or sale</div>
-                            </div>
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            tbody.innerHTML = recent.map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString()}</td>
-                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
-                    <td>${t.product}</td>
-                    <td>₹${t.totalAmount.toLocaleString()}</td>
-                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
-                    <td>${t.person}</td>
-                </tr>
-            `).join('');
-        }
-
-        function initializeCharts() {
-            const ctx1 = document.getElementById('profitChart').getContext('2d');
-            profitChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Monthly Profit',
-                        data: [],
-                        borderColor: 'rgb(37, 99, 235)',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgb(37, 99, 235)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    },
-                    elements: {
-                        point: {
-                            hoverRadius: 8
-                        }
-                    }
-                }
-            });
-
-            const ctx2 = document.getElementById('reportChart').getContext('2d');
-            reportChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Sales', 'Expenses'],
-                    datasets: [{
-                        data: [0, 0],
-                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
-                        borderColor: ['rgb(16, 185, 129)', 'rgb(239, 68, 68)'],
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        borderSkipped: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateProfitChart() {
-            const monthlyData = {};
-            
-            transactions.forEach(transaction => {
-                const date = new Date(transaction.date);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
-                if (!monthlyData[monthKey]) {
-                    monthlyData[monthKey] = { profit: 0 };
-                }
-                
-                if (transaction.type === 'sale' && transaction.profit) {
-                    monthlyData[monthKey].profit += transaction.profit;
-                }
-            });
-
-            const sortedMonths = Object.keys(monthlyData).sort();
-            const labels = sortedMonths.map(month => {
-                const [year, monthNum] = month.split('-');
-                const date = new Date(year, monthNum - 1);
-                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-            });
-            const profits = sortedMonths.map(month => monthlyData[month].profit);
-
-            profitChart.data.labels = labels;
-            profitChart.data.datasets[0].data = profits;
-            profitChart.update();
-        }
-
-        function updateReports() {
-            const period = document.getElementById('reportPeriod').value;
-            const customDateRange = document.getElementById('customDateRange');
-            const customDateRange2 = document.getElementById('customDateRange2');
-            
-            if (period === 'custom') {
-                customDateRange.style.display = 'block';
-                customDateRange2.style.display = 'block';
-            } else {
-                customDateRange.style.display = 'none';
-                customDateRange2.style.display = 'none';
-            }
-
-            const filteredTransactions = getFilteredTransactions(period);
-            calculatePeriodStats(filteredTransactions);
-            updateReportChart(filteredTransactions);
-        }
-
-        function getFilteredTransactions(period) {
-            const now = new Date();
-            let startDate, endDate;
-
-            switch (period) {
-                case 'thisMonth':
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                    break;
-                case 'lastMonth':
-                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
-                    break;
-                case 'thisYear':
-                    startDate = new Date(now.getFullYear(), 0, 1);
-                    endDate = new Date(now.getFullYear(), 11, 31);
-                    break;
-                case 'custom':
-                    const start = document.getElementById('startDate').value;
-                    const end = document.getElementById('endDate').value;
-                    if (start && end) {
-                        startDate = new Date(start);
-                        endDate = new Date(end);
-                    } else {
-                        return transactions;
-                    }
-                    break;
-                default:
-                    return transactions;
-            }
-
-            return transactions.filter(t => {
-                const transactionDate = new Date(t.date);
-                return transactionDate >= startDate && transactionDate <= endDate;
-            });
-        }
-
-        function calculatePeriodStats(filteredTransactions) {
-            let revenue = 0;
-            let expense = 0;
-            let profit = 0;
-            let credit = 0;
-
-            filteredTransactions.forEach(transaction => {
-                if (transaction.type === 'sale') {
-                    revenue += transaction.totalAmount;
-                    if (transaction.profit) {
-                        profit += transaction.profit;
-                    }
-                    if (transaction.payment === 'credit') {
-                        credit += transaction.totalAmount;
-                    }
-                } else if (transaction.type === 'purchase') {
-                    expense += transaction.totalAmount;
-                    if (transaction.payment === 'credit') {
-                        credit += transaction.totalAmount;
-                    }
-                }
-            });
-
-            document.getElementById('reportRevenue').textContent = `₹${revenue.toLocaleString()}`;
-            document.getElementById('reportExpense').textContent = `₹${expense.toLocaleString()}`;
-            document.getElementById('reportProfit').textContent = `₹${profit.toLocaleString()}`;
-            document.getElementById('reportCredit').textContent = `₹${credit.toLocaleString()}`;
-        }
-
-        function updateReportChart(filteredTransactions) {
-            let sales = 0;
-            let expenses = 0;
-
-            filteredTransactions.forEach(transaction => {
-                if (transaction.type === 'sale') {
-                    sales += transaction.totalAmount;
-                } else if (transaction.type === 'purchase') {
-                    expenses += transaction.totalAmount;
-                }
-            });
-
-            reportChart.data.datasets[0].data = [sales, expenses];
-            reportChart.update();
-        }
-
-        function loadTransactions() {
-            const tbody = document.getElementById('allTransactions');
-            
-            if (transactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="10">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📋</div>
-                                <div class="empty-state-title">No transactions found</div>
-                                <div class="empty-state-text">All your purchase and sale records will appear here</div>
-                            </div>
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            tbody.innerHTML = sortedTransactions.map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString()}</td>
-                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
-                    <td>${t.product}</td>
-                    <td>${t.quantity}</td>
-                    <td>₹${t.unitPrice.toLocaleString()}</td>
-                    <td>₹${t.totalAmount.toLocaleString()}</td>
-                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
-                    <td>${t.person}</td>
-                    <td>${t.type === 'sale' && t.profit ? `₹${t.profit.toLocaleString()}` : '-'}</td>
-                    <td><button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function filterTransactions() {
-            const typeFilter = document.getElementById('filterType').value;
-            const paymentFilter = document.getElementById('filterPayment').value;
-            const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
-
-            let filteredTransactions = transactions;
-
-            if (typeFilter !== 'all') {
-                filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
-            }
-
-            if (paymentFilter !== 'all') {
-                filteredTransactions = filteredTransactions.filter(t => t.payment === paymentFilter);
-            }
-
-            if (searchTerm) {
-                filteredTransactions = filteredTransactions.filter(t => 
-                    t.product.toLowerCase().includes(searchTerm) ||
-                    t.person.toLowerCase().includes(searchTerm) ||
-                    (t.notes && t.notes.toLowerCase().includes(searchTerm))
-                );
-            }
-
-            const tbody = document.getElementById('allTransactions');
-            
-            if (filteredTransactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="10">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🔍</div>
-                                <div class="empty-state-title">No transactions found</div>
-                                <div class="empty-state-text">Try adjusting your search criteria</div>
-                            </div>
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            const sortedTransactions = [...filteredTransactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            tbody.innerHTML = sortedTransactions.map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString()}</td>
-                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
-                    <td>${t.product}</td>
-                    <td>${t.quantity}</td>
-                    <td>₹${t.unitPrice.toLocaleString()}</td>
-                    <td>₹${t.totalAmount.toLocaleString()}</td>
-                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
-                    <td>${t.person}</td>
-                    <td>${t.type === 'sale' && t.profit ? `₹${t.profit.toLocaleString()}` : '-'}</td>
-                    <td><button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function deleteTransaction(id) {
-            if (confirm('Are you sure you want to delete this transaction?')) {
-                transactions = transactions.filter(t => t.id !== id);
-                saveData();
-                updateDashboard();
-                loadTransactions();
-                showToast('Transaction deleted successfully!', 'success');
-            }
-        }
-
-        function exportReport() {
-            const period = document.getElementById('reportPeriod').value;
-            const filteredTransactions = getFilteredTransactions(period);
-            
-            let csvContent = "Date,Type,Product,Quantity,Unit Price,Total Amount,Payment Status,Person,Profit/Loss,Notes\n";
-            
-            filteredTransactions.forEach(t => {
-                const profit = t.type === 'sale' && t.profit ? t.profit : '';
-                const notes = (t.notes || '').replace(/"/g, '""');
-                csvContent += `${t.date},${t.type},${t.product},${t.quantity},${t.unitPrice},${t.totalAmount},${t.payment},${t.person},${profit},"${notes}"\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `expense_report_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showToast('Report exported successfully!', 'success');
-        }
-
+        
+        // Clear purchase form fields
         function clearPurchaseForm() {
+            document.getElementById('purchaseDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('supplierName').value = '';
             document.getElementById('productName').value = '';
             document.getElementById('purchaseQuantity').value = '';
             document.getElementById('purchasePrice').value = '';
             document.getElementById('purchasePayment').value = '';
             document.getElementById('purchaseNotes').value = '';
-            
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('purchaseDate').value = today;
         }
 
+        // Add a new sale record
+        function addSale() {
+            const date = document.getElementById('saleDate').value;
+            const customer = document.getElementById('customerName').value.trim();
+            const product = document.getElementById('saleProduct').value.trim();
+            const quantity = parseFloat(document.getElementById('saleQuantity').value) || 1;
+            const unitPrice = parseFloat(document.getElementById('salePrice').value);
+            const costPrice = parseFloat(document.getElementById('costPrice').value);
+            const payment = document.getElementById('salePayment').value;
+            const notes = document.getElementById('saleNotes').value.trim();
+
+            if (!date || isNaN(unitPrice) || isNaN(costPrice) || !payment) {
+                showToast('Please fill out all required fields.', 'error');
+                return;
+            }
+
+            const totalAmount = quantity * unitPrice;
+            const profit = (unitPrice - costPrice) * quantity;
+            const newTransaction = {
+                id: Date.now(),
+                date,
+                type: 'sale',
+                product: product || 'Unspecified',
+                quantity,
+                unitPrice,
+                totalAmount: totalAmount.toFixed(2),
+                payment,
+                person: customer || 'Unspecified',
+                notes,
+                costPrice: costPrice.toFixed(2),
+                profit: profit.toFixed(2)
+            };
+
+            transactions.unshift(newTransaction);
+            saveData();
+            clearSaleForm();
+            updateDashboard();
+            renderTransactions();
+            showToast('Sale added successfully!', 'success');
+        }
+        
+        // Clear sale form fields
         function clearSaleForm() {
+            document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('customerName').value = '';
             document.getElementById('saleProduct').value = '';
             document.getElementById('saleQuantity').value = '';
@@ -1480,49 +1189,434 @@
             document.getElementById('costPrice').value = '';
             document.getElementById('salePayment').value = '';
             document.getElementById('saleNotes').value = '';
-            
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('saleDate').value = today;
         }
 
-        function showAlert(message, type, containerId = null) {
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-            const alertHtml = `<div class="alert ${alertClass}">${message}</div>`;
-            
-            if (containerId) {
-                const container = document.getElementById(containerId);
-                container.innerHTML = alertHtml;
-                setTimeout(() => {
-                    container.innerHTML = '';
-                }, 5000);
-            }
-        }
-
-        function showToast(message, type = 'success') {
-            const existingToast = document.querySelector('.toast');
-            if (existingToast) {
-                existingToast.remove();
-            }
-
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-header">${type === 'success' ? 'Success' : 'Error'}</div>
-                <div class="toast-body">${message}</div>
-            `;
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 4000);
-        }
-
-        setInterval(() => {
-            if (transactions.length > 0) {
+        // Delete a transaction by ID
+        function deleteTransaction(id) {
+            const index = transactions.findIndex(t => t.id === id);
+            if (index > -1) {
+                transactions.splice(index, 1);
                 saveData();
+                updateDashboard();
+                updateReports();
+                renderTransactions();
+                showToast('Transaction deleted successfully.', 'success');
             }
-        }, 30000);
+        }
+        
+        // Confirm before clearing all data
+        function confirmClearData() {
+            openModal('Are you sure you want to clear all data? This action cannot be undone.', function() {
+                transactions = [];
+                saveData();
+                updateDashboard();
+                updateReports();
+                renderTransactions();
+                closeModal();
+                showToast('All data has been cleared.', 'success');
+            });
+        }
+
+        // --- Dashboard & Reports Functions ---
+
+        // Update dashboard stats and charts
+        function updateDashboard() {
+            let totalRevenue = 0;
+            let totalExpense = 0;
+            let pendingCredit = 0;
+            const transactionsForChart = {};
+
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!transactionsForChart[monthYear]) {
+                    transactionsForChart[monthYear] = { sales: 0, expenses: 0 };
+                }
+
+                if (t.type === 'sale') {
+                    const amount = parseFloat(t.totalAmount) || 0;
+                    totalRevenue += amount;
+                    transactionsForChart[monthYear].sales += amount;
+                    if (t.payment === 'credit') {
+                        pendingCredit += amount;
+                    }
+                } else if (t.type === 'purchase') {
+                    const amount = parseFloat(t.totalAmount) || 0;
+                    totalExpense += amount;
+                    transactionsForChart[monthYear].expenses += amount;
+                    if (t.payment === 'credit') {
+                        pendingCredit += amount;
+                    }
+                }
+            });
+
+            const totalProfit = totalRevenue - totalExpense;
+
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
+            document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
+            document.getElementById('totalProfit').textContent = '₹' + totalProfit.toFixed(2);
+            document.getElementById('pendingCredit').textContent = '₹' + pendingCredit.toFixed(2);
+
+            updateProfitChart(transactionsForChart);
+            updateRecentTransactions();
+        }
+        
+        // Update reports stats and charts based on date filter
+        function updateReports() {
+            const period = document.getElementById('reportPeriod').value;
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            
+            let startDate, endDate;
+
+            switch (period) {
+                case 'thisMonth':
+                    startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                    endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+                    endDate = new Date(new Date().getFullYear(), new Date().getMonth(), 0);
+                    break;
+                case 'thisYear':
+                    startDate = new Date(new Date().getFullYear(), 0, 1);
+                    endDate = new Date(new Date().getFullYear(), 11, 31);
+                    break;
+                case 'custom':
+                    startDate = new Date(startDateInput);
+                    endDate = new Date(endDateInput);
+                    break;
+            }
+            
+            let reportRevenue = 0;
+            let reportExpense = 0;
+            let reportCredit = 0;
+            let transactionsForReportChart = {};
+
+            const filteredTransactions = transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return tDate >= startDate && tDate <= endDate;
+            });
+            
+            filteredTransactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!transactionsForReportChart[monthYear]) {
+                    transactionsForReportChart[monthYear] = { sales: 0, expenses: 0 };
+                }
+
+                if (t.type === 'sale') {
+                    const amount = parseFloat(t.totalAmount) || 0;
+                    reportRevenue += amount;
+                    transactionsForReportChart[monthYear].sales += amount;
+                    if (t.payment === 'credit') {
+                        reportCredit += amount;
+                    }
+                } else if (t.type === 'purchase') {
+                    const amount = parseFloat(t.totalAmount) || 0;
+                    reportExpense += amount;
+                    transactionsForReportChart[monthYear].expenses += amount;
+                    if (t.payment === 'credit') {
+                        reportCredit += amount;
+                    }
+                }
+            });
+            
+            const reportProfit = reportRevenue - reportExpense;
+
+            document.getElementById('reportRevenue').textContent = '₹' + reportRevenue.toFixed(2);
+            document.getElementById('reportExpense').textContent = '₹' + reportExpense.toFixed(2);
+            document.getElementById('reportProfit').textContent = '₹' + reportProfit.toFixed(2);
+            document.getElementById('reportCredit').textContent = '₹' + reportCredit.toFixed(2);
+            
+            updateReportChart(transactionsForReportChart);
+        }
+
+        // --- Table & Rendering Functions ---
+
+        // Update the recent transactions table on the dashboard
+        function updateRecentTransactions() {
+            const tableBody = document.getElementById('recentTransactions');
+            tableBody.innerHTML = ''; // Clear table
+            
+            if (transactions.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-title">No transactions yet</div>
+                        <div class="empty-state-text">Start by adding your first purchase or sale</div>
+                    </div>
+                </td></tr>`;
+                return;
+            }
+
+            const recent = transactions.slice(0, 5); // Show only the 5 most recent
+            recent.forEach(t => {
+                const row = `
+                    <tr>
+                        <td>${t.date}</td>
+                        <td><span class="status-badge status-${t.type}">${t.type}</span></td>
+                        <td>${t.product}</td>
+                        <td>₹${t.totalAmount}</td>
+                        <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
+                        <td>${t.person}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        // Render all transactions based on filters and search
+        function renderTransactions() {
+            const tableBody = document.getElementById('allTransactions');
+            tableBody.innerHTML = ''; // Clear table
+            
+            const filterType = document.getElementById('filterType').value;
+            const filterPayment = document.getElementById('filterPayment').value;
+            const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
+            
+            const filteredTransactions = transactions.filter(t => {
+                const typeMatch = filterType === 'all' || t.type === filterType;
+                const paymentMatch = filterPayment === 'all' || t.payment === filterPayment;
+                const searchMatch = t.product.toLowerCase().includes(searchTerm) || 
+                                    t.person.toLowerCase().includes(searchTerm) ||
+                                    t.notes.toLowerCase().includes(searchTerm) ||
+                                    t.totalAmount.includes(searchTerm) ||
+                                    t.date.includes(searchTerm);
+                
+                return typeMatch && paymentMatch && searchMatch;
+            });
+            
+            if (filteredTransactions.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="10">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-title">No transactions found</div>
+                        <div class="empty-state-text">Try adjusting your filters or search term</div>
+                    </div>
+                </td></tr>`;
+                return;
+            }
+
+            filteredTransactions.forEach(t => {
+                const profitText = t.type === 'sale' ? `₹${t.profit}` : '--';
+                const actionsHtml = `
+                    <button class="btn btn-danger btn-icon" onclick="deleteTransaction(${t.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.625a2.25 2.25 0 01-2.244-2.077L4.74 5.86c-.183-.004-.368-.009-.553-.013L2.25 5.25v1.5a.75.75 0 001.5 0v12c0 .828.672 1.5 1.5 1.5h15.75c.828 0 1.5-.672 1.5-1.5V6.75a.75.75 0 00-1.5 0v-.354c0-.363-.294-.657-.657-.657H16.5m-1.996 0h.004c.342-.052.682-.107 1.022-.166M11.25 11.25H9.75m1.5 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75z" />
+                        </svg>
+                    </button>
+                `;
+                const row = `
+                    <tr>
+                        <td>${t.date}</td>
+                        <td><span class="status-badge status-${t.type}">${t.type}</span></td>
+                        <td>${t.product}</td>
+                        <td>${t.quantity}</td>
+                        <td>₹${t.unitPrice}</td>
+                        <td>₹${t.totalAmount}</td>
+                        <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
+                        <td>${t.person}</td>
+                        <td>${profitText}</td>
+                        <td>${actionsHtml}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // --- Chart Functions ---
+
+        // Initialize the charts
+        function initializeCharts() {
+            const profitCtx = document.getElementById('profitChart').getContext('2d');
+            profitChartInstance = new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            const reportCtx = document.getElementById('reportChart').getContext('2d');
+            reportChartInstance = new Chart(reportCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update the profit chart on the dashboard
+        function updateProfitChart(data) {
+            const labels = Object.keys(data).sort();
+            const profits = labels.map(label => (data[label].sales - data[label].expenses));
+            
+            profitChartInstance.data.labels = labels;
+            profitChartInstance.data.datasets = [{
+                label: 'Net Profit',
+                data: profits,
+                backgroundColor: profits.map(p => p >= 0 ? 'rgba(37, 99, 235, 0.8)' : 'rgba(220, 38, 38, 0.8)'),
+                borderRadius: 6
+            }];
+            profitChartInstance.update();
+        }
+        
+        // Update the sales vs expenses chart on the reports page
+        function updateReportChart(data) {
+            const labels = Object.keys(data).sort();
+            const salesData = labels.map(label => data[label].sales);
+            const expensesData = labels.map(label => data[label].expenses);
+            
+            reportChartInstance.data.labels = labels;
+            reportChartInstance.data.datasets = [
+                {
+                    label: 'Sales',
+                    data: salesData,
+                    backgroundColor: 'rgba(22, 163, 74, 0.8)',
+                    borderRadius: 6
+                },
+                {
+                    label: 'Expenses',
+                    data: expensesData,
+                    backgroundColor: 'rgba(220, 38, 38, 0.8)',
+                    borderRadius: 6
+                }
+            ];
+            reportChartInstance.update();
+        }
+        
+        // Export the current report data to a CSV file
+        function exportReport() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Get table data
+            const period = document.getElementById('reportPeriod').value;
+            let filteredTransactions = [];
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+            
+            let startDate, endDate;
+
+            switch (period) {
+                case 'thisMonth':
+                    startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                    endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
+                    endDate = new Date(new Date().getFullYear(), new Date().getMonth(), 0);
+                    break;
+                case 'thisYear':
+                    startDate = new Date(new Date().getFullYear(), 0, 1);
+                    endDate = new Date(new Date().getFullYear(), 11, 31);
+                    break;
+                case 'custom':
+                    startDate = new Date(startDateInput);
+                    endDate = new Date(endDateInput);
+                    break;
+                default:
+                    // Fallback to all transactions if no period is selected
+                    filteredTransactions = transactions;
+            }
+
+            if (period !== 'all' && period !== 'default') {
+                filteredTransactions = transactions.filter(t => {
+                    const tDate = new Date(t.date);
+                    return tDate >= startDate && tDate <= endDate;
+                });
+            }
+            
+            // Headers
+            const headers = ["Date", "Type", "Product", "Quantity", "Unit Price (₹)", "Total Amount (₹)", "Payment", "Person", "Profit/Loss (₹)", "Notes"];
+            csvContent += headers.join(",") + "\n";
+            
+            // Rows
+            filteredTransactions.forEach(t => {
+                const profitText = t.type === 'sale' ? t.profit : '0';
+                const row = [
+                    t.date,
+                    t.type,
+                    t.product,
+                    t.quantity,
+                    t.unitPrice,
+                    t.totalAmount,
+                    t.payment,
+                    t.person,
+                    profitText,
+                    t.notes
+                ];
+                csvContent += row.map(item => `"${item}"`).join(",") + "\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `financial_report_${period}_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Report exported successfully!', 'success');
+        }
+
+        // --- UI Feedback & Utility ---
+        
+        // Show a toast message
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            const toastHeader = document.getElementById('toastHeader');
+            const toastBody = document.getElementById('toastBody');
+            
+            toastHeader.textContent = type === 'success' ? 'Success' : 'Error';
+            toastBody.textContent = message;
+            
+            toast.className = `toast show ${type}`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Modal for confirmations
+        let modalAction = null;
+        function openModal(message, action) {
+            const modal = document.getElementById('confirmModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modalAction = action;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.style.display = 'none';
+        }
+
+        function executeModalAction() {
+            if (modalAction) {
+                modalAction();
+            }
+        }
     </script>
 </body>
 </html>
