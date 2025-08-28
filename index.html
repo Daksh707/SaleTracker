@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Expense & Profit Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --success-dark: #15803d;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --warning: #d97706;
+            --info: #0ea5e9;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+            min-height: 100vh;
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .header p {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            gap: 0.25rem;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.875rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: calc(var(--border-radius) - 2px);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            color: var(--gray-600);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--gray-800);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: calc(var(--border-radius) - 2px);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control:disabled {
+            background: var(--gray-100);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: calc(var(--border-radius) - 2px);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            gap: 0.5rem;
+            min-width: fit-content;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: var(--success-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: var(--danger-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #b45309;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(20px, -20px);
+        }
+
+        .stat-card.revenue {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.revenue::before {
+            background: var(--success);
+        }
+
+        .stat-card.expense {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card.expense::before {
+            background: var(--danger);
+        }
+
+        .stat-card.profit {
+            border-left-color: var(--primary);
+        }
+
+        .stat-card.profit::before {
+            background: var(--primary);
+        }
+
+        .stat-card.pending {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.pending::before {
+            background: var(--warning);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .stat-label {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            background: var(--gray-800);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .table-header h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .status-sale {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-dark);
+        }
+
+        .status-purchase {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-dark);
+        }
+
+        .status-paid {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-dark);
+        }
+
+        .status-credit {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: calc(var(--border-radius) - 2px);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            border-left: 4px solid;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-dark);
+            border-left-color: var(--success);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-dark);
+            border-left-color: var(--danger);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-500);
+            font-style: italic;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .date-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            border-left: 4px solid;
+            padding: 1rem 1.25rem;
+            animation: toastSlide 0.3s ease;
+        }
+
+        @keyframes toastSlide {
+            from { 
+                opacity: 0; 
+                transform: translateX(100%); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast-header {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--gray-800);
+        }
+
+        .toast-body {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.75rem;
+            }
+
+            .header {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .nav-tabs {
+                padding: 0.25rem;
+            }
+
+            .nav-tab {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+                min-width: 100px;
+            }
+
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .date-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .actions-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .toast {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+        }
+
+        .empty-state-text {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Expense & Profit Tracker</h1>
+            <p>Professional business expense tracking and profit calculation</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="switchTab('purchase')">Add Purchase</button>
+            <button class="nav-tab" onclick="switchTab('sale')">Add Sale</button>
+            <button class="nav-tab" onclick="switchTab('reports')">Reports</button>
+            <button class="nav-tab" onclick="switchTab('transactions')">Transactions</button>
+        </div>
+
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card revenue">
+                    <div class="stat-value" id="totalRevenue">₹0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card expense">
+                    <div class="stat-value" id="totalExpense">₹0</div>
+                    <div class="stat-label">Total Expenses</div>
+                </div>
+                <div class="stat-card profit">
+                    <div class="stat-value" id="totalProfit">₹0</div>
+                    <div class="stat-label">Net Profit</div>
+                </div>
+                <div class="stat-card pending">
+                    <div class="stat-value" id="pendingCredit">₹0</div>
+                    <div class="stat-label">Pending Credit</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Monthly Profit Trend</h3>
+                <canvas id="profitChart" width="400" height="100"></canvas>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>Recent Transactions</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Person</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📊</div>
+                                        <div class="empty-state-title">No transactions yet</div>
+                                        <div class="empty-state-text">Start by adding your first purchase or sale</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="purchase" class="tab-content">
+            <div class="card">
+                <h2>Add Purchase Record</h2>
+                <div id="purchaseAlert"></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="purchaseDate">Purchase Date</label>
+                        <input type="date" id="purchaseDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name</label>
+                        <input type="text" id="supplierName" class="form-control" placeholder="Enter supplier name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" class="form-control" placeholder="Enter product name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchaseQuantity">Quantity</label>
+                        <input type="number" id="purchaseQuantity" class="form-control" placeholder="Enter quantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchasePrice">Unit Cost Price (₹)</label>
+                        <input type="number" id="purchasePrice" class="form-control" placeholder="Enter cost price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchasePayment">Payment Status</label>
+                        <select id="purchasePayment" class="form-control" required>
+                            <option value="">Select payment status</option>
+                            <option value="paid">Cash (Paid)</option>
+                            <option value="credit">Credit (Udhaar)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="purchaseNotes">Notes (Optional)</label>
+                    <textarea id="purchaseNotes" class="form-control" placeholder="Any additional notes..." rows="3"></textarea>
+                </div>
+                
+                <div class="actions-group">
+                    <button class="btn btn-primary" onclick="addPurchase()">Add Purchase Record</button>
+                    <button class="btn btn-secondary" onclick="clearPurchaseForm()">Clear Form</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="sale" class="tab-content">
+            <div class="card">
+                <h2>Add Sale Record</h2>
+                <div id="saleAlert"></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="saleDate">Sale Date</label>
+                        <input type="date" id="saleDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerName">Customer Name (Optional)</label>
+                        <input type="text" id="customerName" class="form-control" placeholder="Enter customer name (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="saleProduct">Product Name (Optional)</label>
+                        <input type="text" id="saleProduct" class="form-control" placeholder="Enter product name (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="saleQuantity">Quantity Sold (Optional)</label>
+                        <input type="number" id="saleQuantity" class="form-control" placeholder="Enter quantity (optional)" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="salePrice">Unit Selling Price (₹)</label>
+                        <input type="number" id="salePrice" class="form-control" placeholder="Enter selling price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="costPrice">Unit Cost Price (₹)</label>
+                        <input type="number" id="costPrice" class="form-control" placeholder="Enter cost price for profit calculation" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="salePayment">Payment Status</label>
+                        <select id="salePayment" class="form-control" required>
+                            <option value="">Select payment status</option>
+                            <option value="paid">Cash (Paid)</option>
+                            <option value="credit">Credit (Udhaar)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="saleNotes">Notes (Optional)</label>
+                    <textarea id="saleNotes" class="form-control" placeholder="Any additional notes..." rows="3"></textarea>
+                </div>
+                
+                <div class="actions-group">
+                    <button class="btn btn-success" onclick="addSale()">Add Sale Record</button>
+                    <button class="btn btn-secondary" onclick="clearSaleForm()">Clear Form</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <h2>Financial Reports</h2>
+                
+                <div class="date-filter">
+                    <div class="form-group">
+                        <label for="reportPeriod">Report Period</label>
+                        <select id="reportPeriod" class="form-control" onchange="updateReports()">
+                            <option value="thisMonth">This Month</option>
+                            <option value="lastMonth">Last Month</option>
+                            <option value="thisYear">This Year</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customDateRange" style="display: none;">
+                        <label for="startDate">From Date</label>
+                        <input type="date" id="startDate" class="form-control" onchange="updateReports()">
+                    </div>
+                    <div class="form-group" id="customDateRange2" style="display: none;">
+                        <label for="endDate">To Date</label>
+                        <input type="date" id="endDate" class="form-control" onchange="updateReports()">
+                    </div>
+                    <button class="btn btn-warning" onclick="exportReport()">Export Report</button>
+                </div>
+
+                <div class="stats-grid" id="reportStats">
+                    <div class="stat-card revenue">
+                        <div class="stat-value" id="reportRevenue">₹0</div>
+                        <div class="stat-label">Period Revenue</div>
+                    </div>
+                    <div class="stat-card expense">
+                        <div class="stat-value" id="reportExpense">₹0</div>
+                        <div class="stat-label">Period Expenses</div>
+                    </div>
+                    <div class="stat-card profit">
+                        <div class="stat-value" id="reportProfit">₹0</div>
+                        <div class="stat-label">Period Profit</div>
+                    </div>
+                    <div class="stat-card pending">
+                        <div class="stat-value" id="reportCredit">₹0</div>
+                        <div class="stat-label">Period Credit</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Sales vs Expenses Chart</h3>
+                    <canvas id="reportChart" width="400" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="transactions" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>All Transactions</h3>
+                    <div class="table-controls">
+                        <div class="form-group">
+                            <select id="filterType" class="form-control" onchange="filterTransactions()">
+                                <option value="all">All Transactions</option>
+                                <option value="purchase">Purchases Only</option>
+                                <option value="sale">Sales Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select id="filterPayment" class="form-control" onchange="filterTransactions()">
+                                <option value="all">All Payments</option>
+                                <option value="paid">Cash (Paid)</option>
+                                <option value="credit">Credit (Udhaar)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="searchTransaction" class="form-control" placeholder="Search transactions..." onkeyup="filterTransactions()">
+                        </div>
+                        <button class="btn btn-danger" onclick="clearOldData()" title="Clear all stored data">Clear All Data</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Amount</th>
+                                <th>Payment</th>
+                                <th>Person</th>
+                                <th>Profit/Loss</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTransactions">
+                            <tr>
+                                <td colspan="10">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📋</div>
+                                        <div class="empty-state-title">No transactions found</div>
+                                        <div class="empty-state-text">All your purchase and sale records will appear here</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let transactions = [];
+        let profitChart = null;
+        let reportChart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('purchaseDate').value = today;
+            document.getElementById('saleDate').value = today;
+            
+            loadData();
+            updateDashboard();
+            updateReports();
+            loadTransactions();
+            initializeCharts();
+        });
+
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(navTab => navTab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'reports') {
+                updateReports();
+            } else if (tabName === 'transactions') {
+                loadTransactions();
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('expenseTrackerData', JSON.stringify(transactions));
+                localStorage.setItem('expenseTrackerLastSaved', new Date().toISOString());
+            } catch (error) {
+                showToast('Error saving data: ' + error.message, 'error');
+            }
+        }
+
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('expenseTrackerData');
+                if (savedData) {
+                    transactions = JSON.parse(savedData);
+                }
+            } catch (error) {
+                transactions = [];
+                showToast('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        function clearOldData() {
+            if (confirm('Are you sure you want to clear all stored data? This action cannot be undone.')) {
+                localStorage.removeItem('expenseTrackerData');
+                localStorage.removeItem('expenseTrackerLastSaved');
+                transactions = [];
+                updateDashboard();
+                loadTransactions();
+                showToast('All data cleared successfully!', 'success');
+            }
+        }
+
+        function addPurchase() {
+            const date = document.getElementById('purchaseDate').value;
+            const supplier = document.getElementById('supplierName').value.trim();
+            const product = document.getElementById('productName').value.trim();
+            const quantity = parseInt(document.getElementById('purchaseQuantity').value);
+            const price = parseFloat(document.getElementById('purchasePrice').value);
+            const payment = document.getElementById('purchasePayment').value;
+            const notes = document.getElementById('purchaseNotes').value.trim();
+
+            if (!date || !supplier || !product || !quantity || !price || !payment) {
+                showAlert('Please fill all required fields!', 'error', 'purchaseAlert');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type: 'purchase',
+                date: date,
+                person: supplier,
+                product: product,
+                quantity: quantity,
+                unitPrice: price,
+                totalAmount: quantity * price,
+                payment: payment,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            transactions.push(transaction);
+            saveData();
+            updateDashboard();
+            clearPurchaseForm();
+            showAlert('Purchase record added successfully!', 'success', 'purchaseAlert');
+            showToast('Purchase Added', 'success');
+        }
+
+        function addSale() {
+            const date = document.getElementById('saleDate').value;
+            const customer = document.getElementById('customerName').value.trim() || 'Walk-in Customer';
+            const product = document.getElementById('saleProduct').value.trim() || 'General Sale';
+            const quantity = parseInt(document.getElementById('saleQuantity').value) || 1;
+            const salePrice = parseFloat(document.getElementById('salePrice').value);
+            const costPrice = parseFloat(document.getElementById('costPrice').value);
+            const payment = document.getElementById('salePayment').value;
+            const notes = document.getElementById('saleNotes').value.trim();
+
+            if (!date || !salePrice || !costPrice || !payment) {
+                showAlert('Please fill required fields: Date, Selling Price, Cost Price, and Payment Status!', 'error', 'saleAlert');
+                return;
+            }
+
+            const totalSale = quantity * salePrice;
+            const totalCost = quantity * costPrice;
+            const profit = totalSale - totalCost;
+
+            const transaction = {
+                id: Date.now(),
+                type: 'sale',
+                date: date,
+                person: customer,
+                product: product,
+                quantity: quantity,
+                unitPrice: salePrice,
+                costPrice: costPrice,
+                totalAmount: totalSale,
+                totalCost: totalCost,
+                profit: profit,
+                payment: payment,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            transactions.push(transaction);
+            saveData();
+            updateDashboard();
+            clearSaleForm();
+            showAlert('Sale record added successfully!', 'success', 'saleAlert');
+            showToast('Sale Added Successfully', 'success');
+        }
+
+        function updateDashboard() {
+            let totalRevenue = 0;
+            let totalExpense = 0;
+            let totalProfit = 0;
+            let pendingCredit = 0;
+
+            transactions.forEach(transaction => {
+                if (transaction.type === 'sale') {
+                    totalRevenue += transaction.totalAmount;
+                    if (transaction.profit) {
+                        totalProfit += transaction.profit;
+                    }
+                    if (transaction.payment === 'credit') {
+                        pendingCredit += transaction.totalAmount;
+                    }
+                } else if (transaction.type === 'purchase') {
+                    totalExpense += transaction.totalAmount;
+                    if (transaction.payment === 'credit') {
+                        pendingCredit += transaction.totalAmount;
+                    }
+                }
+            });
+
+            document.getElementById('totalRevenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+            document.getElementById('totalExpense').textContent = `₹${totalExpense.toLocaleString()}`;
+            document.getElementById('totalProfit').textContent = `₹${totalProfit.toLocaleString()}`;
+            document.getElementById('pendingCredit').textContent = `₹${pendingCredit.toLocaleString()}`;
+
+            updateRecentTransactions();
+            updateProfitChart();
+        }
+
+        function updateRecentTransactions() {
+            const tbody = document.getElementById('recentTransactions');
+            const recent = transactions.slice(-10).reverse();
+
+            if (recent.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📊</div>
+                                <div class="empty-state-title">No transactions yet</div>
+                                <div class="empty-state-text">Start by adding your first purchase or sale</div>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recent.map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
+                    <td>${t.product}</td>
+                    <td>₹${t.totalAmount.toLocaleString()}</td>
+                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
+                    <td>${t.person}</td>
+                </tr>
+            `).join('');
+        }
+
+        function initializeCharts() {
+            const ctx1 = document.getElementById('profitChart').getContext('2d');
+            profitChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Monthly Profit',
+                        data: [],
+                        borderColor: 'rgb(37, 99, 235)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(37, 99, 235)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('reportChart').getContext('2d');
+            reportChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Sales', 'Expenses'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+                        borderColor: ['rgb(16, 185, 129)', 'rgb(239, 68, 68)'],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateProfitChart() {
+            const monthlyData = {};
+            
+            transactions.forEach(transaction => {
+                const date = new Date(transaction.date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { profit: 0 };
+                }
+                
+                if (transaction.type === 'sale' && transaction.profit) {
+                    monthlyData[monthKey].profit += transaction.profit;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const labels = sortedMonths.map(month => {
+                const [year, monthNum] = month.split('-');
+                const date = new Date(year, monthNum - 1);
+                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            });
+            const profits = sortedMonths.map(month => monthlyData[month].profit);
+
+            profitChart.data.labels = labels;
+            profitChart.data.datasets[0].data = profits;
+            profitChart.update();
+        }
+
+        function updateReports() {
+            const period = document.getElementById('reportPeriod').value;
+            const customDateRange = document.getElementById('customDateRange');
+            const customDateRange2 = document.getElementById('customDateRange2');
+            
+            if (period === 'custom') {
+                customDateRange.style.display = 'block';
+                customDateRange2.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+                customDateRange2.style.display = 'none';
+            }
+
+            const filteredTransactions = getFilteredTransactions(period);
+            calculatePeriodStats(filteredTransactions);
+            updateReportChart(filteredTransactions);
+        }
+
+        function getFilteredTransactions(period) {
+            const now = new Date();
+            let startDate, endDate;
+
+            switch (period) {
+                case 'thisMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                    break;
+                case 'thisYear':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'custom':
+                    const start = document.getElementById('startDate').value;
+                    const end = document.getElementById('endDate').value;
+                    if (start && end) {
+                        startDate = new Date(start);
+                        endDate = new Date(end);
+                    } else {
+                        return transactions;
+                    }
+                    break;
+                default:
+                    return transactions;
+            }
+
+            return transactions.filter(t => {
+                const transactionDate = new Date(t.date);
+                return transactionDate >= startDate && transactionDate <= endDate;
+            });
+        }
+
+        function calculatePeriodStats(filteredTransactions) {
+            let revenue = 0;
+            let expense = 0;
+            let profit = 0;
+            let credit = 0;
+
+            filteredTransactions.forEach(transaction => {
+                if (transaction.type === 'sale') {
+                    revenue += transaction.totalAmount;
+                    if (transaction.profit) {
+                        profit += transaction.profit;
+                    }
+                    if (transaction.payment === 'credit') {
+                        credit += transaction.totalAmount;
+                    }
+                } else if (transaction.type === 'purchase') {
+                    expense += transaction.totalAmount;
+                    if (transaction.payment === 'credit') {
+                        credit += transaction.totalAmount;
+                    }
+                }
+            });
+
+            document.getElementById('reportRevenue').textContent = `₹${revenue.toLocaleString()}`;
+            document.getElementById('reportExpense').textContent = `₹${expense.toLocaleString()}`;
+            document.getElementById('reportProfit').textContent = `₹${profit.toLocaleString()}`;
+            document.getElementById('reportCredit').textContent = `₹${credit.toLocaleString()}`;
+        }
+
+        function updateReportChart(filteredTransactions) {
+            let sales = 0;
+            let expenses = 0;
+
+            filteredTransactions.forEach(transaction => {
+                if (transaction.type === 'sale') {
+                    sales += transaction.totalAmount;
+                } else if (transaction.type === 'purchase') {
+                    expenses += transaction.totalAmount;
+                }
+            });
+
+            reportChart.data.datasets[0].data = [sales, expenses];
+            reportChart.update();
+        }
+
+        function loadTransactions() {
+            const tbody = document.getElementById('allTransactions');
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <div class="empty-state-title">No transactions found</div>
+                                <div class="empty-state-text">All your purchase and sale records will appear here</div>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            tbody.innerHTML = sortedTransactions.map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
+                    <td>${t.product}</td>
+                    <td>${t.quantity}</td>
+                    <td>₹${t.unitPrice.toLocaleString()}</td>
+                    <td>₹${t.totalAmount.toLocaleString()}</td>
+                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
+                    <td>${t.person}</td>
+                    <td>${t.type === 'sale' && t.profit ? `₹${t.profit.toLocaleString()}` : '-'}</td>
+                    <td><button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function filterTransactions() {
+            const typeFilter = document.getElementById('filterType').value;
+            const paymentFilter = document.getElementById('filterPayment').value;
+            const searchTerm = document.getElementById('searchTransaction').value.toLowerCase();
+
+            let filteredTransactions = transactions;
+
+            if (typeFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(t => t.type === typeFilter);
+            }
+
+            if (paymentFilter !== 'all') {
+                filteredTransactions = filteredTransactions.filter(t => t.payment === paymentFilter);
+            }
+
+            if (searchTerm) {
+                filteredTransactions = filteredTransactions.filter(t => 
+                    t.product.toLowerCase().includes(searchTerm) ||
+                    t.person.toLowerCase().includes(searchTerm) ||
+                    (t.notes && t.notes.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            const tbody = document.getElementById('allTransactions');
+            
+            if (filteredTransactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <div class="empty-state-title">No transactions found</div>
+                                <div class="empty-state-text">Try adjusting your search criteria</div>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            const sortedTransactions = [...filteredTransactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            tbody.innerHTML = sortedTransactions.map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${t.type}">${t.type}</span></td>
+                    <td>${t.product}</td>
+                    <td>${t.quantity}</td>
+                    <td>₹${t.unitPrice.toLocaleString()}</td>
+                    <td>₹${t.totalAmount.toLocaleString()}</td>
+                    <td><span class="status-badge status-${t.payment}">${t.payment}</span></td>
+                    <td>${t.person}</td>
+                    <td>${t.type === 'sale' && t.profit ? `₹${t.profit.toLocaleString()}` : '-'}</td>
+                    <td><button class="btn btn-danger" onclick="deleteTransaction(${t.id})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+                updateDashboard();
+                loadTransactions();
+                showToast('Transaction deleted successfully!', 'success');
+            }
+        }
+
+        function exportReport() {
+            const period = document.getElementById('reportPeriod').value;
+            const filteredTransactions = getFilteredTransactions(period);
+            
+            let csvContent = "Date,Type,Product,Quantity,Unit Price,Total Amount,Payment Status,Person,Profit/Loss,Notes\n";
+            
+            filteredTransactions.forEach(t => {
+                const profit = t.type === 'sale' && t.profit ? t.profit : '';
+                const notes = (t.notes || '').replace(/"/g, '""');
+                csvContent += `${t.date},${t.type},${t.product},${t.quantity},${t.unitPrice},${t.totalAmount},${t.payment},${t.person},${profit},"${notes}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `expense_report_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Report exported successfully!', 'success');
+        }
+
+        function clearPurchaseForm() {
+            document.getElementById('supplierName').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('purchaseQuantity').value = '';
+            document.getElementById('purchasePrice').value = '';
+            document.getElementById('purchasePayment').value = '';
+            document.getElementById('purchaseNotes').value = '';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('purchaseDate').value = today;
+        }
+
+        function clearSaleForm() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('saleProduct').value = '';
+            document.getElementById('saleQuantity').value = '';
+            document.getElementById('salePrice').value = '';
+            document.getElementById('costPrice').value = '';
+            document.getElementById('salePayment').value = '';
+            document.getElementById('saleNotes').value = '';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('saleDate').value = today;
+        }
+
+        function showAlert(message, type, containerId = null) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            const alertHtml = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            if (containerId) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = alertHtml;
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-header">${type === 'success' ? 'Success' : 'Error'}</div>
+                <div class="toast-body">${message}</div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        setInterval(() => {
+            if (transactions.length > 0) {
+                saveData();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
